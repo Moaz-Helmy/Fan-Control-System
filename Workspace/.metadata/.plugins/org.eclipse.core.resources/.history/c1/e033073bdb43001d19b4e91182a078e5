@@ -1,0 +1,52 @@
+/******************************************************************************
+ *
+ * Module: PWM Timer0 For DC Motor
+ *
+ * File Name: pwm.h
+ *
+ * Description: Source file for the AVR PWM Timer0 driver
+ *
+ * Author: Moaz Mohamed
+ *
+ *******************************************************************************/
+#include "pwm.h"
+#include "gpio.h"/*To set pin directions*/
+#include <avr/io.h> /*To use Timer0 registers*/
+/*
+ * Description :
+ * This Function is responsible for:
+ * 1- Setting up Timer0 with PWM mode.
+ * 2- setting PWM with non-inverting mode.
+ * 3- Timer prescaler.
+ * 4- Initializing the compare value based on the input duty cycle.
+ * 5- Configure the direction of the OC0 pin.
+ * 6- Setting the PWM frequency to be 500 HZ to be compatible with motor
+ *    operational frequency.
+ * Function inputs: Required duty cycle.
+ */
+void PWM_Timer0_Start(uint8 duty_cycle)
+{
+	/*Calculating the equivalent OCR register value base on the input duty cycle
+	  percentage*/
+	uint16 req_OCR0_value=(uint16)(((float32)duty_cycle/100)*256);
+	if(req_OCR0_value==256)
+	{
+		req_OCR0_value--;
+	}
+	/*Configure The control bits in TCCR0 register to work with PWM mode.
+	 * FOC0=0 -> PWM-mode
+	 * WGM00=WGM01=1 -> Fast PWM
+	 * COM01=1 / COM00=0 -> non=inverting mode
+	 * CS01=1 / CS00=0 / CS02=0 -> prescaler F_CPU/8
+	 */
+	TCCR0=(1<<WGM00)|(1<<WGM01)|(1<<CS01);
+
+	/*Set OC0 as output pin*/
+	GPIO_setupPinDirection(PORTB_ID,PIN3_ID,PIN_OUTPUT);
+
+	/*assign the required OCR0 value*/
+	OCR0=(uint8)req_OCR0_value;
+
+}
+
+

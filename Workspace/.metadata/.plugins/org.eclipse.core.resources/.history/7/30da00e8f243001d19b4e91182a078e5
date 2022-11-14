@@ -1,0 +1,116 @@
+/******************************************************************************
+ *
+ * Title: 		Fan Control Project
+ *
+ * Description: This application uses GPIO, ADC, LCD, DC Motor,
+ * 				PWM, and LM35 drivers to drive a Fan control system
+ * 				, based on the sensed temperature by the temperature sensor
+ * 				(LM35).
+ *
+ * Author:		Moaz Mohamed
+ *
+ * Date: 		4/10/2022
+ *
+ *******************************************************************************/
+
+/*******************************************************************************
+ *                                Includes                                     *
+ *******************************************************************************/
+#include "lcd.h"
+#include "lm35.h"
+#include "dcmotor.h"
+
+
+/*******************************************************************************
+ *                               Types Declaration                             *
+ *******************************************************************************/
+typedef enum{
+	OFF,ON
+}FAN_State;
+
+FAN_State FanState=OFF;
+
+/*******************************************************************************
+ *                              Functions Prototypes                           *
+ *******************************************************************************/
+/*
+ * Description :
+ * This function specifies the motor speed, based on the sensed temperature
+ * by the temperature sensor.
+ * It also sets the fan state (ON/OFF)
+ */
+void motorSpeedAndFanStateHandler(uint8);
+
+/*********************Program starts here*********************/
+int main(void)
+{
+	uint8 temperature=0;
+	/*Initialization structure for ADC*/
+	ADC_ConfigType ADC_config={INTERNAL,F_CPU_8};
+
+	/*********************Initializations*********************/
+	LCD_init(); /*Initialize LCD in 8-bit mode*/
+	ADC_init(&ADC_config); /*Initialize ADC with the required specifications*/
+	DcMotor_init(); /*Initialize the DC Motor*/
+
+	/*********************Program Logic*********************/
+	LCD_displayStringRowColumn(0,4,"FAN is ");
+	LCD_displayStringRowColumn(1,4,"Temp =");
+
+	while(1)
+	{
+		temperature=LM35_getTemperature();
+		LCD_moveCursor(1,10);
+		LCD_integerToString(temperature);
+		LCD_displayCharacter('C');
+		LCD_displayCharacter(' ');
+
+		motorSpeedAndFanStateHandler(temperature);
+
+		if(FanState==ON)
+		{
+			LCD_moveCursor(0,11);
+			LCD_displayString("ON");
+			LCD_displayCharacter(' ');
+		}
+		else
+		{
+			LCD_moveCursor(0,11);
+			LCD_displayString("OFF");
+		}
+
+	}
+}
+
+void motorSpeedAndFanStateHandler(uint8 temperature)
+{
+	if(temperature<30)
+	{
+		FanState=OFF;
+		DcMotor_Rotate(STOP,0);
+	}
+	else if(temperature>=30 && temperature<60)
+	{
+		FanState=ON;
+		DcMotor_Rotate(CW,25);
+	}
+	else if(temperature>=60 && temperature<90)
+	{
+		FanState=ON;
+		DcMotor_Rotate(CW,50);
+	}
+	else if(temperature>=90 && temperature<120)
+	{
+		FanState=ON;
+		DcMotor_Rotate(CW,75);
+	}
+	else if(temperature>=120)
+	{
+		FanState=ON;
+		DcMotor_Rotate(CW,100);
+	}
+	else
+	{
+
+	}
+}

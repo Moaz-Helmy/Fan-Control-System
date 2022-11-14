@@ -1,0 +1,74 @@
+/*
+ * adc.c
+ *
+ *  Created on: Oct 3, 2022
+ *      Author: ZIZO
+ */
+#include "adc.h"
+#include "common_macros.h"
+#include <avr/io.h>
+
+#if ADC_INTERRUPT_ENABLED == 1
+#include<avr/interrupt.h>
+
+/*This global variable is used to store the result of ADC conversion
+ * when using the module in interrupt mode.
+ */
+volatile uint16 g_ADCResult=0;
+#endif
+
+/*
+ * Description :
+ * This function is responsible for initializing the ADC module with the
+ * required reference voltage and prescaler for the operating frequency.
+ */
+void ADC_init(const Adc_ConfigType* Config_Ptr)
+{
+	/*Choose the specified reference voltage*/
+	ADMUX=(Config_Ptr->ref_volt<<REFS0);
+
+	/*Choose the specified prescaler*/
+	ADCSRA=(Config_Ptr->prescaler<<ADPS0)|(1<<ADEN);
+
+#if ADC_INTERRUPT_ENABLED == 1
+	/*Enable interrupt, when using ADC in interrupt mode*/
+	ADCSRA|=(1<<ADIE);
+
+#endif
+
+}
+
+#if ADC_INTERRUPT_ENABLED == 1
+
+/*
+ * Description :
+ * This function is responsible for prompting the ADC to start the conversion on
+ * the specified channel, when using the ADC in interrupt mode.
+ */
+void ADC_startConversion(uint8 channelNum)
+{
+	ADMUX=(ADMUX&0XE0)|(channelNum);
+	SET_BIT(ADCSRA,ADSC);
+}
+
+/*Interrupt service Routine to receive The conversion result*/
+ISR(ADC_vect)
+{
+	g_ADCResult=ADC;
+}
+
+#elif ADC_INTERRUPT_ENABLED == 0
+
+uint16 ADC_readChannel(uint8 channelNum)
+{
+	ADMUX=(ADMUX&0XE0)|(channelNum);
+	SET_BIT(ADCSRA,ADSC);
+	while(BIT_IS_CLEAR(ADCSRA,ADIF))
+	{
+
+	}
+	SET_BIT(ADCSRA,ADIF);
+	return ADC;
+}
+
+#endif

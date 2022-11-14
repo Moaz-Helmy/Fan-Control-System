@@ -1,0 +1,51 @@
+/*
+ * adc.c
+ *
+ *  Created on: Oct 3, 2022
+ *      Author: ZIZO
+ */
+#include "adc.h"
+#include "common_macros.h"
+#include <avr/io.h>
+
+#if ADC_INTERRUPT_ENABLED == 1
+#include<avr/interrupt.h>
+volatile uint16 g_ADCResult=0;
+#endif
+
+void ADC_init(const Adc_ConfigType* Config_Ptr)
+{
+	ADMUX=(Config_Ptr->ref_volt<<REFS0);
+
+	ADCSRA=(Config_Ptr->prescaler<<ADPS0)|(1<<ADEN);
+
+#if ADC_INTERRUPT_ENABLED == 1
+	ADCSRA|=(1<<ADIE);
+#endif
+
+}
+
+#if ADC_INTERRUPT_ENABLED == 1
+void ADC_startConversion(uint8 channelNum)
+{
+	ADMUX=(ADMUX&0XE0)|(channelNum);
+	SET_BIT(ADCSRA,ADSC);
+}
+
+ISR(ADC_vect)
+{
+	g_ADCResult=ADC;
+}
+#elif ADC_INTERRUPT_ENABLED == 0
+uint16 ADC_readChannel(uint8 channelNum)
+{
+	ADMUX=(ADMUX&0XE0)|(channelNum);
+	SET_BIT(ADCSRA,ADSC);
+	while(BIT_IS_CLEAR(ADCSRA,ADIF))
+	{
+
+	}
+	SET_BIT(ADCSRA,ADIF);
+	return ADC;
+}
+#endif

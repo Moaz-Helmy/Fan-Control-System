@@ -1,0 +1,32 @@
+/******************************************************************************
+ *
+ * Title: Fan Control Project
+ *
+ * Description: This application uses GPIO, ADC, LCD, DC Motor,
+ * 				PWM, and LM35 drivers to drive a Fan control system
+ * 				, based on the sensed temperature by the temperature sensor
+ * 				(LM35).
+ *
+ * Author: Moaz Mohamed
+ *
+ * Date: 4/10/2022
+ *
+ *******************************************************************************/
+
+/*******************************************************************************
+ *                                Includes                                     *
+ *******************************************************************************/
+#include "lcd.h"
+#include "lm35.h"
+#include "dcmotor.h"
+
+int main(void)
+{
+	/*Initialization structure for ADC*/
+	ADC_ConfigType ADC_config={INTERNAL,F_CPU_8};
+
+	/*********************Initializations*********************/
+	LCD_init(); /*Initialize LCD in 8-bit mode*/
+
+}
+

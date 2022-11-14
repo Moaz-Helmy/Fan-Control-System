@@ -1,0 +1,38 @@
+/*
+ * adc.h
+ *
+ *  Created on: Oct 3, 2022
+ *      Author: ZIZO
+ */
+
+#ifndef ADC_H_
+#define ADC_H_
+
+#include "std_types.h"
+
+#define ADC_INTERRUPT_ENABLED 0
+
+typedef enum {
+	AREF,AVCC,INTERNAL256=3
+}ADC_ReferenceVolatge;
+
+
+
+typedef enum {
+	FCPU_2=1,FCPU_4,FCPU_8,FCPU_16,FCPU_32,FCPU_64,FCPU_128
+}ADC_Prescaler;
+
+typedef struct {
+	ADC_ReferenceVolatge ref_volt;
+	ADC_Prescaler prescaler;
+}Adc_ConfigType;
+
+void ADC_init(const Adc_ConfigType * Config_Ptr);
+
+#if ADC_INTERRUPT_ENABLED == 0
+uint16 ADC_readChannel(uint8 channelNum);
+#elif ADC_INTERRUPT_ENABLED == 1
+void ADC_startConversion(uint8 channelNum);
+#endif
+
+#endif /* ADC_H_ */

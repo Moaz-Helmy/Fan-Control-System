@@ -1,0 +1,17 @@
+/******************************************************************************
+ *
+ * Module: PWM Timer0
+ *
+ * File Name: pwm.h
+ *
+ * Description: Source file for the AVR PWM Timer0 driver
+ *
+ * Author: Moaz Mohamed
+ *
+ *******************************************************************************/
+#include "pwm.h"
+#include "gpio.h"/*To set pin directions*/
+#include <avr/io.h> /*To use Timer0 registers*/
+
+
+

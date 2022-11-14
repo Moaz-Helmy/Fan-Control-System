@@ -1,0 +1,24 @@
+/*
+ * lm35.c
+ *
+ *  Created on: Oct 3, 2022
+ *      Author: ZIZO
+ */
+#include "lm35.h"
+#include "adc.h"
+
+uint8 LM35_getTemperature(void)
+{
+	uint16 ADCValue=0;
+	uint8 temperature=0;
+#if ADC_INTERRUPT_ENABLED==0
+	ADCValue=ADC_readChannel(LM35_CHANNEL_ID);
+#elif ADC_INTERRUPT_ENABLED == 1
+	ADC_startConversion(LM35_CHANNEL_ID);
+	ADCValue=g_ADCResult;
+#endif
+
+	temperature=(uint8)(((uint32)ADCValue*LM35_MAX_READING*ADC_REF_VOLT)/(LM35_MAX_VOLT*ADC_MAX_READING));
+	return temperature;
+}
+

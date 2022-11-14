@@ -1,0 +1,26 @@
+/*
+ * lm35.h
+ *
+ *  Created on: Oct 3, 2022
+ *      Author: ZIZO
+ */
+
+#ifndef LM35_H_
+#define LM35_H_
+
+#include "std_types.h"
+#include "adc.h"
+
+#if ADC_INTERRUPT_ENABLED==1
+extern volatile uint16 g_ADCResult;
+#endif
+
+#define ADC_REF_VOLT		5
+#define ADC_MAX_READING 	1023
+#define LM35_MAX_READING 	150
+#define LM35_CHANNEL_ID		2
+#define LM35_MAX_VOLT		1.5
+
+uint8 LM35_getTemperature(void);
+
+#endif /* LM35_H_ */
